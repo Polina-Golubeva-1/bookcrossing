@@ -1,6 +1,5 @@
 package bookcrossing.controller;
 
-
 import bookcrossing.domain.BookBorrowal;
 import bookcrossing.service.BookBorrowalService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,12 +18,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/book_borrowal")
 public class BookBorrowalController {
-     public final BookBorrowalService bookBorrowalService;
+    public final BookBorrowalService bookBorrowalService;
 
-     public BookBorrowalController(BookBorrowalService bookBorrowalService) {
-         this.bookBorrowalService = bookBorrowalService;
-     }
-
+    public BookBorrowalController(BookBorrowalService bookBorrowalService) {
+        this.bookBorrowalService = bookBorrowalService;
+    }
 
     @GetMapping
     public ResponseEntity<List<BookBorrowal>> getAll() {
@@ -61,7 +59,14 @@ public class BookBorrowalController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> delete(@Parameter(description = "ID of the person to be deleted") @PathVariable("id") Long id) {
-        bookBorrowalService.deleteBookBorrowalById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        Optional<BookBorrowal> bookBorrowalToDelete = bookBorrowalService.getBookBorrowalById(id);
+
+        if (bookBorrowalToDelete.isPresent()) {
+            bookBorrowalService.deleteBookBorrowalById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
     }
 }

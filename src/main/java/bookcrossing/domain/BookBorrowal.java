@@ -9,21 +9,17 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.Data;
-import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 
 @Data
-@Component
 @Entity(name="book_borrowal")
 public class BookBorrowal {
-
 
         @Id
         @SequenceGenerator(name = "borrowal", sequenceName = "borrowal_id", allocationSize = 1)
         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "borrowal")
         private Long id;
-
 
         @Column(name = "borrower_id")
         private Long borrowerId;
@@ -38,4 +34,5 @@ public class BookBorrowal {
         @Temporal(TemporalType.TIMESTAMP)
         @Column(name = "return_date")
         private Timestamp returnData;
+
 }
