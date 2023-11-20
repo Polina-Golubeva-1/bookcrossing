@@ -4,7 +4,6 @@ import bookcrossing.domain.Book;
 import bookcrossing.repository.BookRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -29,6 +28,10 @@ public class BookService {
             return bookRepository.findById(id);
         }
 
+        public List<Book> getAllAvailableBooks() {
+            return bookRepository.findByStatus(Book.BookStatus.AVAILABLE);
+        }
+
         public Boolean createBook(Book book) {
             try {
 
@@ -42,33 +45,33 @@ public class BookService {
             return true;
         }
 
-        public Boolean updateBook(Book book) {
-            try {
-                bookRepository.saveAndFlush(book);
-                log.info(String.format("Book with id %s updated!", book.getId()));
-            } catch (Exception e) {
-                log.warn(String.format("Book with id %s have error! %s", book.getId(), e));
-                return false;
-            }
-            return true;
-        }
+    public Optional<Book> updateBook(Long id, Book updatedBook) {
+        return bookRepository.findById(id)
+                .map(existingBook -> {
 
-        public void deleteBookById(Long id) {
-            bookRepository.deleteById(id);
-        }
+                    existingBook.setName(updatedBook.getName());
+                    existingBook.setGenre(updatedBook.getGenre());
+                    existingBook.setAuthor(updatedBook.getAuthor());
 
-
-
-        @Transactional(rollbackFor = Exception.class)
-        public void updateName(String name, long id){
-            bookRepository.updateNameById(name,id);
-        }
-
-
-
-
-    public List<Book> findAllByName(String name){
-        return bookRepository.findAllByName(name);
+                    try {
+                        Book updated = bookRepository.save(existingBook);
+                        log.info("User with ID {} updated!", updated.getId());
+                        return updated;
+                    } catch (Exception e) {
+                        log.warn("Error updating person", e);
+                        throw new RuntimeException("Error updating person", e);
+                    }
+                });
     }
-}
+
+        public Optional<Book> deleteBookById(Long id) {
+        Optional<Book> bookToDelete = bookRepository.findById(id);
+        bookToDelete.ifPresent(book -> bookRepository.deleteById(id));
+        return bookToDelete;
+        }
+
+       public List<Book> findAllByName(String name){
+        return bookRepository.findAllByName(name);
+         }
+       }
 
