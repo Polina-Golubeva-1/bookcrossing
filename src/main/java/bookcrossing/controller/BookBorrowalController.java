@@ -1,6 +1,7 @@
 package bookcrossing.controller;
 
 import bookcrossing.domain.BookBorrowal;
+import bookcrossing.service.BlackListService;
 import bookcrossing.service.BookBorrowalService;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.http.HttpStatus;
@@ -19,9 +20,10 @@ import java.util.Optional;
 @RequestMapping("/book_borrowal")
 public class BookBorrowalController {
     public final BookBorrowalService bookBorrowalService;
-
-    public BookBorrowalController(BookBorrowalService bookBorrowalService) {
+    private final BlackListService blackListService;
+    public BookBorrowalController(BookBorrowalService bookBorrowalService, BlackListService blackListService) {
         this.bookBorrowalService = bookBorrowalService;
+        this.blackListService = blackListService;
     }
 
     @GetMapping
@@ -38,11 +40,11 @@ public class BookBorrowalController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping
-    public ResponseEntity<HttpStatus> create(@RequestParam Long borrowerId, @RequestParam Long bookId) {
-        BookBorrowal borrowal = bookBorrowalService.createBookBorrowal(borrowerId, bookId);
+    @PostMapping("/borrow")
+    public ResponseEntity<HttpStatus> borrowBook(@RequestParam Long borrowerId, @RequestParam Long bookId) {
+        if (blackListService.canBorrowBook(borrowerId)) {
+        bookBorrowalService.borrowBook(borrowerId, bookId);
 
-        if (borrowal != null) {
             return new ResponseEntity<>(HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(HttpStatus.CONFLICT);

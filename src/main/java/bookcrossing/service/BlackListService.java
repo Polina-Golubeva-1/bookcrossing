@@ -1,9 +1,9 @@
 package bookcrossing.service;
 
 import bookcrossing.domain.BlackList;
+import bookcrossing.domain.Person;
 import bookcrossing.repository.BlackListRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,33 +14,50 @@ import java.util.Optional;
 public class BlackListService {
 
     private final BlackListRepository blackListRepository;
+    private final PersonService personService;
 
-    @Autowired
-    public BlackListService(BlackListRepository blackListRepository) {
+    public BlackListService(BlackListRepository blackListRepository, PersonService personService) {
         this.blackListRepository = blackListRepository;
+        this.personService = personService;
     }
-
     public List<BlackList> getAll() {
         return blackListRepository.findAll();
     }
 
-    public Optional<BlackList> getBlackListById(Long id) {
-        return blackListRepository.findById(id);
-    }
-
-    public BlackList addToBlackList(BlackList blackList) {
-        return blackListRepository.save(blackList);
-    }
-
-    public List<BlackList> getBlackListByRating(Integer rating) {
-        return blackListRepository.findByRating(rating);
-    }
-
-    public List<BlackList> getBlackListByPersonId(Long personId) {
+    public Optional<BlackList> findByPersonId(Long personId) {
         return blackListRepository.findByPersonId(personId);
+    }
+
+    public Optional<BlackList> addToBlackList(Long personId) {
+        Optional<Person> person = personService.getPersonById(personId);
+
+        if (person.isPresent() && person.get().getRating() == 0) {
+            BlackList blackListEntry = new BlackList();
+            blackListEntry.setPersonId(personId);
+            blackListEntry.setPersonName(person.get().getFirstName());
+
+            blackListRepository.save(blackListEntry);
+            return Optional.of(blackListEntry);
+        } else {
+            return Optional.empty();
+        }
     }
 
     public void deleteBlackListById(Long id) {
         blackListRepository.deleteById(id);
     }
+
+    public boolean isPersonInBlackList(Long personId) {
+        Optional<BlackList> blackListEntry = blackListRepository.findByPersonId(personId);
+        return blackListEntry.isEmpty();
+    }
+
+    public boolean canRentBook(Long personId) {
+        return isPersonInBlackList(personId);
+    }
+
+    public boolean canBorrowBook(Long personId) {
+        return isPersonInBlackList(personId);
+    }
+
 }

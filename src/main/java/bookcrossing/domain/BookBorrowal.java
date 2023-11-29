@@ -29,10 +29,10 @@ public class BookBorrowal {
 
         @Temporal(TemporalType.TIMESTAMP)
         @Column(name = "borrow_date")
-        private Timestamp borrowData;
+        private Timestamp borrowDate;
 
         @Temporal(TemporalType.TIMESTAMP)
         @Column(name = "return_date")
-        private Timestamp returnData;
+        private Timestamp returnDate;
 
 }

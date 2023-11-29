@@ -23,7 +23,6 @@ public class BookController {
 
     public final BookService bookService;
 
-
     public BookController(BookService bookService) {
         this.bookService = bookService;
     }
@@ -35,10 +34,10 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable("id") Long id) {
-        Optional<Book> book = bookService.getBookById(id);
-        return book.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.CONFLICT));
+    public ResponseEntity<Book> getBookById(@PathVariable Long id) {
+        Optional<Book> bookOptional = Optional.ofNullable(bookService.getBookById(id));
+        return bookOptional.map(book -> new ResponseEntity<>(book, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/findByName")

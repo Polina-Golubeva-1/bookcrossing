@@ -32,4 +32,8 @@ public class BookRequest {
         @Column(name = "request_date")
         private Timestamp requestDate;
 
+        @Temporal(TemporalType.TIMESTAMP)
+        @Column(name = "expiration_date")
+        private Timestamp expirationDate;
+
 }

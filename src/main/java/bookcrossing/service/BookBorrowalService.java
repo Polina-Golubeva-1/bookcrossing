@@ -6,10 +6,12 @@ import bookcrossing.domain.Person;
 import bookcrossing.repository.BookBorrowalRepository;
 import bookcrossing.repository.BookRepository;
 import bookcrossing.repository.PersonRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -36,11 +38,13 @@ public class BookBorrowalService {
         return bookBorrowalRepository.findById(id);
     }
 
-    public BookBorrowal createBookBorrowal(Long borrowerId, Long bookId) {
+    public BookBorrowal borrowBook(Long borrowerId, Long bookId) {
+
         BookBorrowal borrowal = new BookBorrowal();
         borrowal.setBorrowerId(borrowerId);
         borrowal.setBookId(bookId);
-        borrowal.setBorrowData(new Timestamp(System.currentTimeMillis()));
+        borrowal.setBorrowDate(new Timestamp(System.currentTimeMillis()));
+        borrowal.setReturnDate(calculateReturnDate());
 
         updateBookStatus(borrowal);
 
@@ -51,22 +55,26 @@ public class BookBorrowalService {
     }
 
     public BookBorrowal returnBook(Long borrowalId) {
-        BookBorrowal borrowal = bookBorrowalRepository.findById(borrowalId).orElse(null);
 
-        if (borrowal != null) {
-            borrowal.setReturnData(new Timestamp(System.currentTimeMillis()));
-            borrowal = bookBorrowalRepository.save(borrowal);
+        Optional<BookBorrowal> optionalBorrowal = bookBorrowalRepository.findById(borrowalId);
+
+        if (optionalBorrowal.isPresent()) {
+            BookBorrowal borrowal = optionalBorrowal.get();
+            borrowal.setReturnDate(Timestamp.valueOf(LocalDateTime.now()));
 
             updatePersonRating(borrowal);
-
+            bookBorrowalRepository.save(borrowal);
             return borrowal;
         }
 
-        return null; //TODO: don't return null
+        throw new EntityNotFoundException("Sorry, rental not found " + borrowalId);
     }
+
 
     private void updatePersonRating(BookBorrowal borrowal) {
         Optional<Person> borrower = personRepository.findById(borrowal.getBorrowerId());
+        int max = 10;
+        int min = 0;
 
         if (borrower.isPresent()) {
             int currentRating = borrower.get().getRating();
@@ -74,7 +82,7 @@ public class BookBorrowalService {
 
             int updatedRating = currentRating + ratingChange;
 
-            if (updatedRating <= 10 && updatedRating >= 0) {
+            if (updatedRating <= max && updatedRating >= min) {
                 borrower.get().setRating(updatedRating);
                 personRepository.updatePersonRating(updatedRating, borrower.get().getId());
                 log.info("Updated user rating from ID: {} to: {}", borrower.get().getId(), updatedRating);
@@ -83,21 +91,31 @@ public class BookBorrowalService {
     }
 
     private void  updateBookStatus(BookBorrowal borrowal) {
-        Optional<Book> optionalBook = bookRepository.findById(borrowal.getBorrowerId());
+        Optional<Book> optionalBook = bookRepository.findById(borrowal.getBookId());
 
         if (optionalBook.isPresent()) {
             Book borrower = optionalBook.get();
             borrower.setStatus(Book.BookStatus.ON_HAND);
             bookRepository.save(borrower);
+        } else {
+            log.warn("Book with id {} not found.", borrowal.getBookId());
         }
-            }
-
+    }
     private int calculateRatingChange(BookBorrowal borrowal) {
-        if (borrowal.getReturnData() != null) {
-            long timeDifference = borrowal.getReturnData().getTime() - borrowal.getBorrowData().getTime();
-            return timeDifference <= TimeUnit.DAYS.toMillis(7)?1:-1;
+        int daysUse = 7;
+        int during = 1;
+        int overdue = 1;
+        int withoutChanges = 0;
+        if (borrowal.getReturnDate() != null) {
+            long timeDifference = borrowal.getReturnDate().getTime() - borrowal.getBorrowDate().getTime();
+            return timeDifference <= TimeUnit.DAYS.toMillis(daysUse)?during:-overdue;
         }
-        return 0;
+        return withoutChanges;
+    }
+    private Timestamp calculateReturnDate() {
+        int daysUse = 7;
+        LocalDateTime returnDate = LocalDateTime.now().plusDays(daysUse);
+        return Timestamp.valueOf(returnDate);
     }
 
     public void deleteBookBorrowalById(Long id) {
