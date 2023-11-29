@@ -3,7 +3,6 @@ package bookcrossing.controller;
 import bookcrossing.domain.BlackList;
 import bookcrossing.service.BlackListService;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,30 +32,25 @@ public class BlackListController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<BlackList> getBlackListById(@PathVariable("id") Long id) {
-        Optional<BlackList> blackList = blackListService.getBlackListById(id);
+    @GetMapping("/findByPersonId/{personId}")
+    public ResponseEntity<BlackList> findByPersonId(@PathVariable Long personId) {
+        Optional<BlackList> blackList = blackListService.findByPersonId(personId);
         return blackList.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
-    public ResponseEntity<BlackList> addToBlackList(@RequestBody BlackList blackList) {
-        Optional<BlackList> addedBlackList = Optional.ofNullable(blackListService.addToBlackList(blackList));
-        return addedBlackList.map(value -> new ResponseEntity<>(value, HttpStatus.CREATED))
+    public ResponseEntity<BlackList> addToBlackList(@RequestParam Long personId) {
+        Optional<BlackList> blackListEntry = blackListService.addToBlackList(personId);
+
+        return blackListEntry.map(entry -> new ResponseEntity<>(entry, HttpStatus.CREATED))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
 
     @GetMapping("/byRating")
     public ResponseEntity<List<BlackList>> getBlackListByRating(@RequestParam("rating") Integer rating) {
         Optional<List<BlackList>> blackList = Optional.ofNullable(blackListService.getBlackListByRating(rating));
-        return blackList.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    @GetMapping("/byPersonId")
-    public ResponseEntity<List<BlackList>> getBlackListByPersonId(@RequestParam("personId") Long personId) {
-        Optional<List<BlackList>> blackList = Optional.ofNullable(blackListService.getBlackListByPersonId(personId));
         return blackList.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }

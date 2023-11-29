@@ -1,9 +1,9 @@
 package bookcrossing.service;
 
 import bookcrossing.domain.BlackList;
+import bookcrossing.domain.Person;
 import bookcrossing.repository.BlackListRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,31 +14,39 @@ import java.util.Optional;
 public class BlackListService {
 
     private final BlackListRepository blackListRepository;
+    private final PersonService personService;
 
-    @Autowired
-    public BlackListService(BlackListRepository blackListRepository) {
+    public BlackListService(BlackListRepository blackListRepository, PersonService personService) {
         this.blackListRepository = blackListRepository;
+        this.personService = personService;
     }
-
     public List<BlackList> getAll() {
         return blackListRepository.findAll();
     }
 
-    public Optional<BlackList> getBlackListById(Long id) {
-        return blackListRepository.findById(id);
+    public Optional<BlackList> findByPersonId(Long personId) {
+        return blackListRepository.findByPersonId(personId);
     }
 
-    public BlackList addToBlackList(BlackList blackList) {
-        return blackListRepository.save(blackList);
+    public Optional<BlackList> addToBlackList(Long personId) {
+        Optional<Person> person = personService.getPersonById(personId);
+
+        if (person.isPresent() && person.get().getRating() == 0) {
+            BlackList blackListEntry = new BlackList();
+            blackListEntry.setPersonId(personId);
+
+            blackListRepository.save(blackListEntry);
+            return Optional.of(blackListEntry);
+        } else {
+            return Optional.empty();
+        }
     }
+
 
     public List<BlackList> getBlackListByRating(Integer rating) {
         return blackListRepository.findByRating(rating);
     }
 
-    public List<BlackList> getBlackListByPersonId(Long personId) {
-        return blackListRepository.findByPersonId(personId);
-    }
 
     public void deleteBlackListById(Long id) {
         blackListRepository.deleteById(id);

@@ -1,6 +1,7 @@
 package bookcrossing.service;
 
 import bookcrossing.domain.Book;
+import bookcrossing.exeption_resolver.BookNotFoundException;
 import bookcrossing.repository.BookRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,9 @@ public class BookService {
             return bookRepository.findAll();
         }
 
-        public Optional<Book> getBookById(Long id) {
-            return bookRepository.findById(id);
+        public Book getBookById(Long id) {
+            Optional<Book> book = bookRepository.findById(id);
+            return book.orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + id));
         }
 
         public List<Book> getAllAvailableBooks() {
