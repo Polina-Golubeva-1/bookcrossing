@@ -29,7 +29,7 @@ public class SecurityService {
 
     public Optional<String> generateToken(AuthRequest authRequest) {
         Optional<SecurityCredentials> personCredentials =
-                securityCredentialsRepository.getByPersonLogin(authRequest.getLogin());
+                securityCredentialsRepository.getByUserName(authRequest.getLogin());
         if (personCredentials.isPresent() &&
                 passwordEncoder.matches(authRequest.getPassword(), personCredentials.get().getPersonPassword())) {
             return Optional.of(jwtUtils.generateJwtToken(authRequest.getLogin()));
@@ -39,7 +39,7 @@ public class SecurityService {
 
     @Transactional(rollbackOn = Exception.class)
     public void registration(RegistrationDTO registrationDTO) {
-        Optional<SecurityCredentials> result = securityCredentialsRepository.getByPersonLogin(registrationDTO.getUserName());
+        Optional<SecurityCredentials> result = securityCredentialsRepository.getByUserName(registrationDTO.getUserName());
         if (result.isPresent()) {
             throw new SameUserInDatabaseException();
         }
@@ -48,6 +48,10 @@ public class SecurityService {
         person.setSecondName(registrationDTO.getSecondName());
         person.setCreated(Timestamp.valueOf(LocalDateTime.now()));
         person.setAge(registrationDTO.getAge());
+        person.setPhone(registrationDTO.getPhone());
+        person.setEmail(registrationDTO.getEmail());
+        person.setAddress(registrationDTO.getAddress());
+        person.setRating(10);
         Person userInfoResult = personRepository.save(person);
 
         SecurityCredentials securityCredentials = new SecurityCredentials();

@@ -26,7 +26,7 @@ public class PersonService {
         return personRepository.findById(id);
     }
 
-    public Boolean createPerson(String firstName, String secondName, Integer age, Integer phone, String email, String address) {
+    public Boolean createPerson(String firstName, String secondName, Integer age, String phone, String email, String address) {
         Person person = new Person();
         try {
             person.setFirstName(firstName);
@@ -46,7 +46,7 @@ public class PersonService {
         }
         return true;
     }
-
+//попробуй не возвращать optional
     public Optional<Person> updatePerson(Long id, Person updatedPerson) {
         return personRepository.findById(id)
                 .map(existingPerson -> {

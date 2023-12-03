@@ -1,6 +1,8 @@
 package bookcrossing.service;
 
 import bookcrossing.domain.Book;
+import bookcrossing.domain.BookRent;
+import bookcrossing.domain.Person;
 import bookcrossing.exeption_resolver.BookNotFoundException;
 import bookcrossing.repository.BookRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -15,37 +17,37 @@ import java.util.Optional;
 @Service
 public class BookService {
 
-        private final BookRepository bookRepository;
+    private final BookRepository bookRepository;
 
-        public BookService(BookRepository bookRepository) {
-            this.bookRepository = bookRepository;
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    public List<Book> getAll() {
+        return bookRepository.findAll();
+    }
+
+    public Book getBookById(Long id) {
+        Optional<Book> book = bookRepository.findById(id);
+        return book.orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + id));
+    }
+
+    public List<Book> getAllAvailableBooks() {
+        return bookRepository.findByStatus(Book.BookStatus.AVAILABLE);
+    }
+
+    public Boolean createBook(Book book) {
+        try {
+
+            book.setCreated(Timestamp.valueOf(LocalDateTime.now()));
+            bookRepository.save(book);
+            log.info(String.format("Book with  name %s created!", book.getName()));
+        } catch (Exception e) {
+            log.warn(String.format("Book with name %s have error! %s", book.getName(), e));
+            return false;
         }
-
-        public List<Book> getAll() {
-            return bookRepository.findAll();
-        }
-
-        public Book getBookById(Long id) {
-            Optional<Book> book = bookRepository.findById(id);
-            return book.orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + id));
-        }
-
-        public List<Book> getAllAvailableBooks() {
-            return bookRepository.findByStatus(Book.BookStatus.AVAILABLE);
-        }
-
-        public Boolean createBook(Book book) {
-            try {
-
-                book.setCreated(Timestamp.valueOf(LocalDateTime.now()));
-                bookRepository.save(book);
-                log.info(String.format("Book with  name %s created!", book.getName()));
-            } catch (Exception e) {
-                log.warn(String.format("Book with name %s have error! %s", book.getName(), e));
-                return false;
-            }
-            return true;
-        }
+        return true;
+    }
 
     public Optional<Book> updateBook(Long id, Book updatedBook) {
         return bookRepository.findById(id)
@@ -66,14 +68,21 @@ public class BookService {
                 });
     }
 
-        public Optional<Book> deleteBookById(Long id) {
+    public Boolean isPersonOwnsBook(Long personId, Long bookId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new BookNotFoundException("Book with ID " + bookId + " not found."));
+        return book.getOwner().getId() == personId;
+    }
+
+
+    public Optional<Book> deleteBookById(Long id) {
         Optional<Book> bookToDelete = bookRepository.findById(id);
         bookToDelete.ifPresent(book -> bookRepository.deleteById(id));
         return bookToDelete;
-        }
+    }
 
-       public List<Book> findAllByName(String name){
+    public List<Book> findAllByName(String name) {
         return bookRepository.findAllByName(name);
-         }
-       }
+    }
+}
 

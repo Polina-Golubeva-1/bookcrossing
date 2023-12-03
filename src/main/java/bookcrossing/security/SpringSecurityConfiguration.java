@@ -44,8 +44,9 @@ public class SpringSecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers(new AntPathRequestMatcher("/person", "GET")).hasRole("ADMIN")
                                 .requestMatchers(new AntPathRequestMatcher("/person")).hasRole("ADMIN")
+                                .requestMatchers(new AntPathRequestMatcher("/book_request")).hasAnyRole("ADMIN", "USER")
+                                .requestMatchers(new AntPathRequestMatcher("/book_request/cancel/{id}")).hasRole("ADMIN")
                                 .requestMatchers(new AntPathRequestMatcher("/security/registration", "POST")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/security", "POST")).permitAll()
                                 .anyRequest().authenticated()

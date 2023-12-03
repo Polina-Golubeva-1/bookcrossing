@@ -56,7 +56,7 @@ public class PersonController {
         Optional<Person> updated = personService.updatePerson(id, updatedPerson);
 
         return updated.map(ResponseEntity::ok)
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.CONFLICT));
     }
 
     @DeleteMapping("/{id}")

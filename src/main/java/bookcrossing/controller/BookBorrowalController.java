@@ -3,6 +3,7 @@ package bookcrossing.controller;
 import bookcrossing.domain.BookBorrowal;
 import bookcrossing.service.BlackListService;
 import bookcrossing.service.BookBorrowalService;
+import bookcrossing.service.BookService;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +23,12 @@ import java.util.Optional;
 public class BookBorrowalController {
     public final BookBorrowalService bookBorrowalService;
     private final BlackListService blackListService;
+    private final BookService bookService;
 
-    public BookBorrowalController(BookBorrowalService bookBorrowalService, BlackListService blackListService) {
+    public BookBorrowalController(BookBorrowalService bookBorrowalService, BlackListService blackListService, BookService bookService) {
         this.bookBorrowalService = bookBorrowalService;
         this.blackListService = blackListService;
+        this.bookService = bookService;
     }
 
     @GetMapping
@@ -44,7 +47,7 @@ public class BookBorrowalController {
 
     @PostMapping("/borrow")
     public ResponseEntity<HttpStatus> borrowBook(@RequestParam Long borrowerId, @RequestParam Long bookId, @RequestParam(value = "takerId", required = false) Long takerId) {
-        if (blackListService.canBorrowBook(borrowerId)) {
+        if (blackListService.isPersonNotInBlackList(borrowerId)&& !bookService.isPersonOwnsBook(borrowerId,bookId)) {
             bookBorrowalService.borrowBook(takerId, borrowerId, bookId);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } else {

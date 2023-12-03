@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface SecurityCredentialsRepository extends JpaRepository<SecurityCredentials, Long> {
-    Optional<SecurityCredentials> getByPersonLogin(String login);
+    Optional<SecurityCredentials> getByUserName(String login);
 
     @Query(
             nativeQuery = true,

@@ -8,14 +8,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.Data;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 @Data
 @Entity(name="book")
@@ -48,7 +47,7 @@ public class Book {
         ON_HAND
     }
 
-    @OneToMany(mappedBy = "book")
-    private List<Owner> owners;
+    @ManyToOne
+    private Person owner;
 
 }

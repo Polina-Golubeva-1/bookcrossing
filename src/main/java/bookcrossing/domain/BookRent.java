@@ -14,12 +14,12 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 @Data
 @Component
-@Entity(name="book_request")
-public class BookRequest {
+@Entity(name="book_rent")
+public class BookRent {
 
         @Id
-        @SequenceGenerator(name = "request", sequenceName = "request_id", allocationSize = 1)
-        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "request")
+        @SequenceGenerator(name = "rent", sequenceName = "rent_id", allocationSize = 1)
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rent")
         private Long id;
 
         @Column(name = "requester_id")

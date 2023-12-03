@@ -47,17 +47,10 @@ public class BlackListService {
         blackListRepository.deleteById(id);
     }
 
-    public boolean isPersonInBlackList(Long personId) {
+    public boolean isPersonNotInBlackList(Long personId) {
         Optional<BlackList> blackListEntry = blackListRepository.findByPersonId(personId);
         return blackListEntry.isEmpty();
     }
 
-    public boolean canRentBook(Long personId) {
-        return isPersonInBlackList(personId);
-    }
-
-    public boolean canBorrowBook(Long personId) {
-        return isPersonInBlackList(personId);
-    }
 
 }

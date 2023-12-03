@@ -2,13 +2,13 @@ package bookcrossing.service;
 
 import bookcrossing.domain.Book;
 import bookcrossing.domain.BookBorrowal;
-import bookcrossing.domain.BookRequest;
+import bookcrossing.domain.BookRent;
 import bookcrossing.domain.Person;
 import bookcrossing.exeption_resolver.BookNotFoundException;
 import bookcrossing.exeption_resolver.BookUnavailableException;
 import bookcrossing.repository.BookBorrowalRepository;
 import bookcrossing.repository.BookRepository;
-import bookcrossing.repository.BookRequestRepository;
+import bookcrossing.repository.BookRentRepository;
 import bookcrossing.repository.PersonRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +28,13 @@ public class BookBorrowalService {
     private final BookBorrowalRepository bookBorrowalRepository;
     private final PersonRepository personRepository;
     private final BookRepository bookRepository;
-    private final BookRequestRepository bookRequestRepository;
+    private final BookRentRepository bookRentRepository;
 
-    public BookBorrowalService(BookBorrowalRepository bookBorrowalRepository, PersonRepository personRepository, BookRepository bookRepository, BookRequestRepository bookRequestRepository) {
+    public BookBorrowalService(BookBorrowalRepository bookBorrowalRepository, PersonRepository personRepository, BookRepository bookRepository, BookRentRepository bookRentRepository) {
         this.bookBorrowalRepository = bookBorrowalRepository;
         this.personRepository = personRepository;
         this.bookRepository = bookRepository;
-        this.bookRequestRepository = bookRequestRepository;
+        this.bookRentRepository = bookRentRepository;
     }
 
     public List<BookBorrowal> getAll() {
@@ -52,24 +52,24 @@ public class BookBorrowalService {
 
             if (book.getStatus() == Book.BookStatus.AVAILABLE) {
 
-                BookRequest existingRequest = bookRequestRepository.findByRequesterIdAndBookId(borrowerId, bookId);
+                BookRent existingRequest = bookRentRepository.findByRequesterIdAndBookId(borrowerId, bookId);
 
                 if (existingRequest != null) {
 
                     book.setStatus(Book.BookStatus.ON_HAND);
-                    bookRequestRepository.delete(existingRequest);
+                    bookRentRepository.delete(existingRequest);
                 } else {
 
                     int daysUntilExpiration = 5;
 
-                    BookRequest request = new BookRequest();
+                    BookRent request = new BookRent();
                     request.setRequesterId(borrowerId);
                     request.setBookId(bookId);
                     request.setRequestDate(new Timestamp(System.currentTimeMillis()));
                     request.setExpirationDate(Timestamp.from(request.getRequestDate().toInstant().plus(daysUntilExpiration, ChronoUnit.DAYS)));
 
                     book.setStatus(Book.BookStatus.ON_HAND);
-                    bookRequestRepository.save(request);
+                    bookRentRepository.save(request);
                 }
 
                 bookRepository.save(book);
@@ -86,12 +86,12 @@ public class BookBorrowalService {
                 log.info("Created a lease with ID: {}", borrowal.getId());
             } else if (book.getStatus() == Book.BookStatus.RESERVED) {
 
-                BookRequest existingRequest = bookRequestRepository.findByRequesterIdAndBookId(takerId, bookId);
+                BookRent existingRequest = bookRentRepository.findByRequesterIdAndBookId(takerId, bookId);
 
                 if (existingRequest != null) {
 
                     book.setStatus(Book.BookStatus.ON_HAND);
-                    bookRequestRepository.delete(existingRequest);
+                    bookRentRepository.delete(existingRequest);
 
                     bookRepository.save(book);
 

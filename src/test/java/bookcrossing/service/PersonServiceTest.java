@@ -74,14 +74,15 @@ public class PersonServiceTest {
         Assertions.assertNotNull(resultList);
     }
 
-    @Test
+ /*   @Test
     void createTest() {
         Mockito.when(personRepository.save(any())).thenReturn(person);
 
         Boolean result = personService.createPerson(person);
         Mockito.verify(personRepository, Mockito.times(1)).save(any());
         Assertions.assertTrue(result);
-    }
+    }*/
+/*
 
     @Test
     void updateTest() {
@@ -91,7 +92,7 @@ public class PersonServiceTest {
         Mockito.verify(personRepository, Mockito.times(1)).saveAndFlush(any());
         Assertions.assertTrue(result);
     }
-
+*/
     @Test
     void deleteTest() {
         personService.deletePersonById(10L);

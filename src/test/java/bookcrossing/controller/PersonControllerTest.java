@@ -19,15 +19,19 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = PersonController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -63,6 +67,8 @@ public class PersonControllerTest {
 
         Mockito.when(personService.getAll()).thenReturn(personList);
 
+        //  verify(personService, times(1)).getAll();
+
         mockMvc.perform(get("/person"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", Matchers.hasSize(1)))
@@ -71,7 +77,7 @@ public class PersonControllerTest {
 
     @Test
     void createTest() throws Exception {
-        Mockito.when(personService.createPerson(any())).thenReturn(true);
+        Mockito.when(personService.createPerson(any(), any(), any(), any(), any(), any())).thenReturn(true);
 
         mockMvc.perform(post("/person")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -81,7 +87,7 @@ public class PersonControllerTest {
 
     @Test
     void updateTest_shouldBeNoContent() throws Exception {
-        Mockito.when(personService.updatePerson(any())).thenReturn(true);
+        Mockito.when(personService.updatePerson(any(), any())).thenReturn(true);
 
         mockMvc.perform(put("/person")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -91,9 +97,9 @@ public class PersonControllerTest {
 
     @Test
     void updateTest_shouldBeConflict() throws Exception {
-        Mockito.when(personService.updatePerson(any())).thenReturn(false);
+        Mockito.when(personService.updatePerson(any(), any())).thenThrow(new RuntimeException("Error updating person"));
 
-        mockMvc.perform(put("/person")
+        mockMvc.perform(put("/person/update/10")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(person)))
                 .andExpect(status().isConflict());

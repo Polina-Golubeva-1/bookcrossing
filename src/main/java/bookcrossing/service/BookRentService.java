@@ -1,11 +1,11 @@
 package bookcrossing.service;
 
 import bookcrossing.domain.Book;
-import bookcrossing.domain.BookRequest;
+import bookcrossing.domain.BookRent;
 import bookcrossing.exeption_resolver.BookNotFoundException;
 import bookcrossing.exeption_resolver.BookUnavailableException;
 import bookcrossing.repository.BookRepository;
-import bookcrossing.repository.BookRequestRepository;
+import bookcrossing.repository.BookRentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -18,25 +18,25 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class BookRequestService {
+public class BookRentService {
 
-    private final BookRequestRepository bookRequestRepository;
+    private final BookRentRepository bookRentRepository;
     private final BookRepository bookRepository;
 
-    public BookRequestService(BookRequestRepository bookRequestRepository, BookRepository bookRepository) {
-        this.bookRequestRepository = bookRequestRepository;
+    public BookRentService(BookRentRepository bookRentRepository, BookRepository bookRepository) {
+        this.bookRentRepository = bookRentRepository;
         this.bookRepository = bookRepository;
     }
 
-    public List<BookRequest> getAll() {
-        return bookRequestRepository.findAll();
+    public List<BookRent> getAll() {
+        return bookRentRepository.findAll();
     }
 
-    public Optional<BookRequest> getBookRequestById(Long id) {
-        return bookRequestRepository.findById(id);
+    public Optional<BookRent> getBookRequestById(Long id) {
+        return bookRentRepository.findById(id);
     }
 
-    public BookRequest rentBook(Long requesterId, Long bookId) {
+    public BookRent rentBook(Long requesterId, Long bookId) {
         try {
             Book book = bookRepository.findById(bookId)
                     .orElseThrow(() -> new BookNotFoundException("Book with ID " + bookId + " not found."));
@@ -47,13 +47,13 @@ public class BookRequestService {
 
             int daysUntilExpiration = 5;
 
-            BookRequest request = new BookRequest();
+            BookRent request = new BookRent();
             request.setRequesterId(requesterId);
             request.setBookId(bookId);
             request.setRequestDate(Timestamp.from(Instant.now()));
             request.setExpirationDate(Timestamp.from(request.getRequestDate().toInstant().plus(daysUntilExpiration, ChronoUnit.DAYS)));
 
-            request = bookRequestRepository.save(request);
+            request = bookRentRepository.save(request);
 
             book.setStatus(Book.BookStatus.RESERVED);
             bookRepository.save(book);
@@ -85,7 +85,7 @@ public class BookRequestService {
         }
     }*/
 
-    private void cancelReservation(BookRequest request) {
+    private void cancelReservation(BookRent request) {
         Optional<Book> optionalBook = bookRepository.findById(request.getBookId());
 
         optionalBook.ifPresent(book -> {
@@ -93,13 +93,13 @@ public class BookRequestService {
                 book.setStatus(Book.BookStatus.AVAILABLE);
                 bookRepository.save(book);
             }
-            bookRequestRepository.deleteById(request.getId());
+            bookRentRepository.deleteById(request.getId());
         });
     }
 
-    public Optional<BookRequest> deleteBookRequestById(Long id) {
-        Optional<BookRequest> bookRequestToDelete = bookRequestRepository.findById(id);
-        bookRequestToDelete.ifPresent(bookRequest -> bookRequestRepository.deleteById(id));
+    public Optional<BookRent> deleteBookRequestById(Long id) {
+        Optional<BookRent> bookRequestToDelete = bookRentRepository.findById(id);
+        bookRequestToDelete.ifPresent(bookRent -> bookRentRepository.deleteById(id));
         return bookRequestToDelete;
     }
 }
