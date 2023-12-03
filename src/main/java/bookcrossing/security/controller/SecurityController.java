@@ -4,6 +4,8 @@ import bookcrossing.security.domain.dto.AuthRequest;
 import bookcrossing.security.domain.dto.AuthResponse;
 import bookcrossing.security.domain.dto.RegistrationDTO;
 import bookcrossing.security.service.SecurityService;
+import bookcrossing.service.PersonService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +30,9 @@ public class SecurityController {
     }
 
     @PostMapping
-    public ResponseEntity<AuthResponse> generateToken(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<AuthResponse> generateToken(HttpSession session, @RequestBody AuthRequest authRequest) {
+        Long userId = securityService.getUserIdByLogin(authRequest.getLogin());
+        session.setAttribute("userId", userId);
         Optional<String> token = securityService.generateToken(authRequest);
         if (token.isPresent()) {
             return new ResponseEntity<>(new AuthResponse(token.get()), HttpStatus.CREATED);

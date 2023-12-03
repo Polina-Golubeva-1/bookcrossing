@@ -37,6 +37,10 @@ public class SecurityService {
         return Optional.empty();
     }
 
+    public Long getUserIdByLogin(String login) {
+        return securityCredentialsRepository.findUserIdByLogin(login);
+    }
+
     @Transactional(rollbackOn = Exception.class)
     public void registration(RegistrationDTO registrationDTO) {
         Optional<SecurityCredentials> result = securityCredentialsRepository.getByUserName(registrationDTO.getUserName());

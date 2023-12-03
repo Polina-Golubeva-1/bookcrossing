@@ -28,6 +28,9 @@ public class PersonRepositoryTest {
         userInfo.setSecondName("TestLastName");
         userInfo.setAge(20);
         userInfo.setCreated(Timestamp.valueOf(LocalDateTime.now()));
+        userInfo.setPhone("844747447");
+        userInfo.setAddress("utututu");
+        userInfo.setEmail("ututuuu");
     }
 
     @Test

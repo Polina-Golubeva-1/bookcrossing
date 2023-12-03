@@ -46,7 +46,7 @@ public class PersonService {
         }
         return true;
     }
-//попробуй не возвращать optional
+
     public Optional<Person> updatePerson(Long id, Person updatedPerson) {
         return personRepository.findById(id)
                 .map(existingPerson -> {

@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,8 +24,6 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -67,8 +66,6 @@ public class PersonControllerTest {
 
         Mockito.when(personService.getAll()).thenReturn(personList);
 
-        //  verify(personService, times(1)).getAll();
-
         mockMvc.perform(get("/person"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", Matchers.hasSize(1)))
@@ -87,12 +84,12 @@ public class PersonControllerTest {
 
     @Test
     void updateTest_shouldBeNoContent() throws Exception {
-        Mockito.when(personService.updatePerson(any(), any())).thenReturn(true);
+        Mockito.when(personService.updatePerson(any(), any())).thenReturn(Optional.of(new Person()));
 
-        mockMvc.perform(put("/person")
+        mockMvc.perform(put("/person/update/10")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(person)))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -106,9 +103,10 @@ public class PersonControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void deleteTest() throws Exception {
         Mockito.doNothing().when(personService).deletePersonById(anyLong());
-
-        mockMvc.perform(delete("/person/15")).andExpect(status().isNoContent());
+        Mockito.when(personService.getPersonById(anyLong())).thenReturn(Optional.of(new Person()));
+        mockMvc.perform(delete("/person/3")).andExpect(status().isNoContent());
     }
 }

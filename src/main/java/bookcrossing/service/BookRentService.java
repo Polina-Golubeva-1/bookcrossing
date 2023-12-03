@@ -4,6 +4,7 @@ import bookcrossing.domain.Book;
 import bookcrossing.domain.BookRent;
 import bookcrossing.exeption_resolver.BookNotFoundException;
 import bookcrossing.exeption_resolver.BookUnavailableException;
+import bookcrossing.monitoring.BookScheduler;
 import bookcrossing.repository.BookRepository;
 import bookcrossing.repository.BookRentRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +24,12 @@ public class BookRentService {
     private final BookRentRepository bookRentRepository;
     private final BookRepository bookRepository;
 
-    public BookRentService(BookRentRepository bookRentRepository, BookRepository bookRepository) {
+    private final BookScheduler bookScheduler;
+
+    public BookRentService(BookRentRepository bookRentRepository, BookRepository bookRepository, BookScheduler bookScheduler) {
         this.bookRentRepository = bookRentRepository;
         this.bookRepository = bookRepository;
+        this.bookScheduler = bookScheduler;
     }
 
     public List<BookRent> getAll() {
@@ -58,7 +62,7 @@ public class BookRentService {
             book.setStatus(Book.BookStatus.RESERVED);
             bookRepository.save(book);
 
-       //     autoCancelReservations();
+           bookScheduler.autoCancelReservations();
 
             return request;
         } catch (BookNotFoundException | BookUnavailableException e) {
@@ -68,33 +72,6 @@ public class BookRentService {
             log.error("Unexpected error creating book request for bookId={} and requesterId={}", bookId, requesterId, e);
             throw e;
         }
-    }
-
-   /* public void autoCancelReservations() {
-        Instant now = Instant.now();
-        Timestamp currentTimestamp = Timestamp.from(now);
-
-        List<BookRequest> expiredRequests = bookRequestRepository.findByExpirationDateBeforeAndStatus(currentTimestamp, Book.BookStatus.RESERVED);
-
-        for (BookRequest request : expiredRequests) {
-            try {
-                cancelReservation(request);
-            } catch (Exception e) {
-                log.error("Error cancelling expired reservation for book with id {}", request.getBookId(), e);
-            }
-        }
-    }*/
-
-    private void cancelReservation(BookRent request) {
-        Optional<Book> optionalBook = bookRepository.findById(request.getBookId());
-
-        optionalBook.ifPresent(book -> {
-            if (book.getStatus() == Book.BookStatus.RESERVED) {
-                book.setStatus(Book.BookStatus.AVAILABLE);
-                bookRepository.save(book);
-            }
-            bookRentRepository.deleteById(request.getId());
-        });
     }
 
     public Optional<BookRent> deleteBookRequestById(Long id) {

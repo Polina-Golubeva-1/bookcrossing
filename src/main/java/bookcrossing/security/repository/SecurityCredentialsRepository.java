@@ -13,6 +13,6 @@ public interface SecurityCredentialsRepository extends JpaRepository<SecurityCre
 
     @Query(
             nativeQuery = true,
-            value = "SELECT person_id FROM security_credentials WHERE user_name = ?1")
+            value = "SELECT person_id FROM security WHERE user_name = ?1")
     Long findUserIdByLogin(String login);
 }

@@ -57,7 +57,6 @@ public class PersonServiceTest {
 
     @Test
     void getPersonByIdTest() {
-        Mockito.when(securityService.checkAccessById(anyLong())).thenReturn(true);
         Mockito.when(personRepository.findById(anyLong())).thenReturn(Optional.of(person));
 
         Optional<Person> result = personService.getPersonById(personId);
@@ -74,25 +73,25 @@ public class PersonServiceTest {
         Assertions.assertNotNull(resultList);
     }
 
- /*   @Test
+    @Test
     void createTest() {
         Mockito.when(personRepository.save(any())).thenReturn(person);
 
-        Boolean result = personService.createPerson(person);
+        Boolean result = personService.createPerson( "firstName", "secondName",  19, "phone", "email", "address");
         Mockito.verify(personRepository, Mockito.times(1)).save(any());
         Assertions.assertTrue(result);
-    }*/
-/*
+    }
+
 
     @Test
     void updateTest() {
-        Mockito.when(personRepository.saveAndFlush(any())).thenReturn(person);
+        Mockito.when(personRepository.save(any())).thenReturn(person);
+        Mockito.when(personRepository.findById(7L)).thenReturn(Optional.of(new Person()));
 
-        Boolean result = personService.updatePerson(person);
-        Mockito.verify(personRepository, Mockito.times(1)).saveAndFlush(any());
-        Assertions.assertTrue(result);
+        Optional<Person> result = personService.updatePerson(7L, new Person());
+        Mockito.verify(personRepository, Mockito.times(1)).save(any());
     }
-*/
+
     @Test
     void deleteTest() {
         personService.deletePersonById(10L);

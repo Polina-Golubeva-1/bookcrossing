@@ -31,7 +31,7 @@ public class BookBorrowalController {
         this.bookService = bookService;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<BookBorrowal>> getAll() {
         Optional<List<BookBorrowal>> resultList = Optional.ofNullable(bookBorrowalService.getAll());
         return resultList.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
