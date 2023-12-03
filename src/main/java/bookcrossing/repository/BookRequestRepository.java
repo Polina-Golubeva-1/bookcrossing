@@ -17,7 +17,9 @@ public interface BookRequestRepository extends JpaRepository<BookRequest, Long> 
 
     Optional<BookRequest> findById(Long id);
 
-  //  @Modifying
+    BookRequest findByRequesterIdAndBookId(Long takerId, Long bookId);
+
+    //  @Modifying
     //@Query("SELECT br FROM bookcrossing.domain.BookRequest br JOIN bookcrossing.domain.Book b WHERE br.expirationDate < :currentTimestamp AND b.status = :status")
    // List<BookRequest> findByExpirationDateBeforeAndStatus(@Param("currentTimestamp") Timestamp currentTimestamp, @Param("status") Book.BookStatus status);
 }

@@ -46,8 +46,6 @@ public class BookRequestController {
         }
     }
 
-
-
     @DeleteMapping("/cancel/{id}")
     public ResponseEntity<Object> cancelBookRequest(@PathVariable Long id) {
         Optional<BookRequest> canceledRequest = bookRequestService.deleteBookRequestById(id);

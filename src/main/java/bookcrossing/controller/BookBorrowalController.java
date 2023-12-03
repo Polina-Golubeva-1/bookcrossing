@@ -16,11 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
+
 @RestController
 @RequestMapping("/book_borrowal")
 public class BookBorrowalController {
     public final BookBorrowalService bookBorrowalService;
     private final BlackListService blackListService;
+
     public BookBorrowalController(BookBorrowalService bookBorrowalService, BlackListService blackListService) {
         this.bookBorrowalService = bookBorrowalService;
         this.blackListService = blackListService;
@@ -41,10 +43,9 @@ public class BookBorrowalController {
     }
 
     @PostMapping("/borrow")
-    public ResponseEntity<HttpStatus> borrowBook(@RequestParam Long borrowerId, @RequestParam Long bookId) {
+    public ResponseEntity<HttpStatus> borrowBook(@RequestParam Long borrowerId, @RequestParam Long bookId, @RequestParam(value = "takerId", required = false) Long takerId) {
         if (blackListService.canBorrowBook(borrowerId)) {
-        bookBorrowalService.borrowBook(borrowerId, bookId);
-
+            bookBorrowalService.borrowBook(takerId, borrowerId, bookId);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(HttpStatus.CONFLICT);

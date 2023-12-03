@@ -27,6 +27,18 @@ public class ExceptionResolver {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
+    @ExceptionHandler(UserFromDatabaseNotFound.class)
+    public ResponseEntity<HttpStatus> userFromDatabaseNotFoundException(Exception e) {
+        log.info(String.valueOf(e));
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(SameUserInDatabaseException.class)
+    public ResponseEntity<HttpStatus> sameUserInDatabaseException(Exception e) {
+        log.info(String.valueOf(e));
+        return new ResponseEntity<>(HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<String> handleException(Exception e) {

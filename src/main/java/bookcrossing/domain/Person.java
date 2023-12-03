@@ -1,9 +1,11 @@
 package bookcrossing.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Temporal;
@@ -13,9 +15,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
-@Entity(name="person")
+@Entity(name = "person")
 public class Person {
 
     @Id
@@ -51,4 +54,10 @@ public class Person {
     @Column(name = "address")
     private String address;
 
+    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY)
+    private List<Book> ownerBooks;
+
+    public List<Book> getOwnerBooks() {
+        return ownerBooks;
+    }
 }
