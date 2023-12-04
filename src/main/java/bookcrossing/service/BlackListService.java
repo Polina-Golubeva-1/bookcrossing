@@ -32,6 +32,12 @@ public class BlackListService {
         Optional<Person> person = personService.getPersonById(personId);
 
         if (person.isPresent() && person.get().getRating() == 0) {
+
+            Optional<BlackList> existingEntry = blackListRepository.findByPersonId(personId);
+            if (existingEntry.isPresent()) {
+                return Optional.empty();
+            }
+
             BlackList blackListEntry = new BlackList();
             blackListEntry.setPersonId(personId);
             blackListEntry.setPersonName(person.get().getFirstName());
