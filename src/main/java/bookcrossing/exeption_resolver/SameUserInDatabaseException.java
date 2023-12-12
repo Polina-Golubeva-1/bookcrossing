@@ -1,5 +1,5 @@
 package bookcrossing.exeption_resolver;
 
-public class SameUserInDatabaseException extends RuntimeException{
+public class SameUserInDatabaseException extends RuntimeException {
 }
 

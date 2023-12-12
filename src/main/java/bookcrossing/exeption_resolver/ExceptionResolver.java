@@ -10,11 +10,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Slf4j
 @ControllerAdvice
 public class ExceptionResolver {
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler({RuntimeException.class, SameUserInDatabaseException.class})
     public ResponseEntity<HttpStatus> exceptionHandlerMethodForRuntimeException(Exception e) {
-        log.warn(String.valueOf(e));
-        return  new ResponseEntity<>(HttpStatus.CONFLICT);
+        log.warn("Unexpected Runtime Exception: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
+
     @ExceptionHandler(BookUnavailableException.class)
     public ResponseEntity<String> handleBookUnavailableException(BookUnavailableException e) {
         log.warn("Book Unavailable Exception: {}", e.getMessage());
@@ -29,14 +30,8 @@ public class ExceptionResolver {
 
     @ExceptionHandler(UserFromDatabaseNotFound.class)
     public ResponseEntity<HttpStatus> userFromDatabaseNotFoundException(Exception e) {
-        log.info(String.valueOf(e));
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-    }
-
-    @ExceptionHandler(SameUserInDatabaseException.class)
-    public ResponseEntity<HttpStatus> sameUserInDatabaseException(Exception e) {
-        log.info(String.valueOf(e));
-        return new ResponseEntity<>(HttpStatus.CONFLICT);
+        log.info("User Not Found in Database: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @ExceptionHandler(Exception.class)

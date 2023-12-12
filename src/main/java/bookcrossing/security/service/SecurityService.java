@@ -80,4 +80,3 @@ public class SecurityService {
         return (userId.equals(id) || userRole.equals("ROLE_ADMIN"));
     }
 }
-

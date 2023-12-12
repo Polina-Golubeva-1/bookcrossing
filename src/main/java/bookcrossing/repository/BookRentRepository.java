@@ -10,13 +10,9 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface BookRentRepository extends JpaRepository<BookRent, Long> {
-
-    Optional<BookRent> findById(Long id);
-
     BookRent findByRequesterIdAndBookId(Long takerId, Long bookId);
 
     @Modifying

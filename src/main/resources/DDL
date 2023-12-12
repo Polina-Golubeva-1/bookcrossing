@@ -1,0 +1,97 @@
+create table book_borrowal
+(
+    borrower_id bigint
+        constraint book_borrowal_person_id_fk
+            references person
+            on update cascade on delete cascade,
+    book_id     bigint
+        constraint book_borrowal_book_id_fk
+            references book
+            on update cascade on delete cascade,
+    return_date timestamp(6),
+    id          bigserial
+        constraint book_borrowal_pk
+            primary key,
+    borrow_date timestamp(6),
+    taker_id    bigint
+        constraint book_borrowal_book_request_requester_id_fk
+            references book_request (requester_id)
+            on update cascade on delete cascade
+);
+
+alter table book_borrowal
+    owner to postgres;
+
+create table book_rent
+(
+    book_id         bigint
+        constraint book_rent_book_id_fk
+            references book
+            on update cascade on delete cascade,
+    expiration_date timestamp(6),
+    request_date    timestamp(6),
+    requester_id    bigint
+        constraint book_rent_pk
+            unique
+        constraint book_rent_person_id_fk
+            references person
+            on update cascade on delete cascade,
+    id              bigserial
+        constraint book_rent_pk2
+            primary key
+);
+
+alter table book_rent
+    owner to postgres;
+
+create table black_list
+(
+    person_name varchar(255) not null,
+    person_id   bigint       not null
+        constraint black_list_person_id_fk
+            references person
+            on update cascade on delete cascade,
+    id          bigserial
+        constraint black_list_pk
+            primary key
+);
+
+alter table black_list
+    owner to postgres;
+
+create table person
+(
+    id          bigserial
+        constraint "  person_pkey"
+            primary key,
+    first_name  varchar(255) not null,
+    second_name varchar(255) not null,
+    age         integer      not null,
+    phone       varchar(255) not null,
+    email       varchar(50)  not null,
+    created     timestamp(6),
+    rating      integer,
+    address     varchar(255) not null
+);
+
+alter table person
+    owner to postgres;
+
+create table book
+(
+    id       bigserial
+        constraint book_pk
+            primary key,
+    name     varchar(255) not null,
+    genre    varchar(255) not null,
+    author   varchar(255) not null,
+    created  timestamp(6),
+    status   varchar(255) not null,
+    owner_id bigint
+        constraint fk2efkbmpm6dlg81ssw87yiyo4a
+            references person
+);
+
+alter table book
+    owner to postgres;
+

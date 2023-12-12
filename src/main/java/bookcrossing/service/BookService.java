@@ -1,8 +1,6 @@
 package bookcrossing.service;
 
 import bookcrossing.domain.Book;
-import bookcrossing.domain.BookRent;
-import bookcrossing.domain.Person;
 import bookcrossing.exeption_resolver.BookNotFoundException;
 import bookcrossing.repository.BookRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -71,7 +70,7 @@ public class BookService {
     public Boolean isPersonOwnsBook(Long personId, Long bookId) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new BookNotFoundException("Book with ID " + bookId + " not found."));
-        return book.getOwner().getId() == personId;
+        return Objects.equals(book.getOwner().getId(), personId);
     }
 
 

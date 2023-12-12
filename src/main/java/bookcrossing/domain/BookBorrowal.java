@@ -13,26 +13,26 @@ import lombok.Data;
 import java.sql.Timestamp;
 
 @Data
-@Entity(name="book_borrowal")
+@Entity(name = "book_borrowal")
 public class BookBorrowal {
 
-        @Id
-        @SequenceGenerator(name = "borrowal", sequenceName = "borrowal_id", allocationSize = 1)
-        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "borrowal")
-        private Long id;
+    @Id
+    @SequenceGenerator(name = "borrowal", sequenceName = "borrowal_id", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "borrowal")
+    private Long id;
 
-        @Column(name = "borrower_id")
-        private Long borrowerId;
+    @Column(name = "borrower_id")
+    private Long borrowerId;
 
-        @Column(name = "book_id")
-        private Long bookId;
+    @Column(name = "book_id")
+    private Long bookId;
 
-        @Temporal(TemporalType.TIMESTAMP)
-        @Column(name = "borrow_date")
-        private Timestamp borrowDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "borrow_date")
+    private Timestamp borrowDate;
 
-        @Temporal(TemporalType.TIMESTAMP)
-        @Column(name = "return_date")
-        private Timestamp returnDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "return_date")
+    private Timestamp returnDate;
 
 }

@@ -1,6 +1,5 @@
 package bookcrossing.controller;
 
-
 import bookcrossing.domain.Person;
 import bookcrossing.service.PersonService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -45,21 +44,21 @@ public class PersonController {
 
     @PostMapping
     public ResponseEntity<HttpStatus> create(@Valid @RequestBody Person newPerson, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<> (personService.createPerson(newPerson.getFirstName(), newPerson.getSecondName(), newPerson.getAge(), newPerson.getPhone(), newPerson.getEmail(), newPerson.getAddress()) ? HttpStatus.CREATED : HttpStatus.CONFLICT);
+        return new ResponseEntity<>(personService.createPerson(newPerson) ? HttpStatus.CREATED : HttpStatus.CONFLICT);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Person> updatePerson(@PathVariable Long id,@RequestBody Person updatedPerson) {
+    public ResponseEntity<Person> updatePerson(@Valid @PathVariable Long id, @RequestBody Person updatedPerson) {
         Optional<Person> updated = personService.updatePerson(id, updatedPerson);
 
         return updated.map(ResponseEntity::ok)
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.CONFLICT));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<HttpStatus> delete(@Parameter(description = "ID of the person to be deleted") @PathVariable("id") Long id) {
         Optional<Person> personToDelete = personService.getPersonById(id);
 

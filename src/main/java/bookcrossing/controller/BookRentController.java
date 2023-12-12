@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/book_request")
-public class BookRequestController {
+@RequestMapping("/book_rent")
+public class BookRentController {
     public final BookRentService bookRentService;
     private final BlackListService blackListService;
     private final BookService bookService;
 
-    public BookRequestController(BookRentService bookRentService, BlackListService blackListService, BookService bookService) {
+    public BookRentController(BookRentService bookRentService, BlackListService blackListService, BookService bookService) {
         this.bookRentService = bookRentService;
         this.blackListService = blackListService;
         this.bookService = bookService;
@@ -40,7 +40,7 @@ public class BookRequestController {
 
     @PostMapping("/rent")
     public ResponseEntity<BookRent> rentBook(@RequestParam Long requesterId, @RequestParam Long bookId) {
-        if (blackListService.isPersonNotInBlackList(requesterId) && !bookService.isPersonOwnsBook(requesterId,bookId)) {
+        if (blackListService.isPersonNotInBlackList(requesterId) && !bookService.isPersonOwnsBook(requesterId, bookId)) {
             bookRentService.rentBook(requesterId, bookId);
 
             return new ResponseEntity<>(HttpStatus.CREATED);

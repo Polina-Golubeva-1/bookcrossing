@@ -19,7 +19,6 @@ public class BookScheduler {
     private final BookRentRepository bookRentRepository;
     private final BookRepository bookRepository;
 
-
     public BookScheduler(BookRentRepository bookRentRepository, BookRepository bookRepository) {
         this.bookRentRepository = bookRentRepository;
         this.bookRepository = bookRepository;
@@ -40,7 +39,6 @@ public class BookScheduler {
             }
         }
     }
-
 
     private void cancelReservation(BookRent request) {
         Optional<Book> optionalBook = bookRepository.findById(request.getBookId());

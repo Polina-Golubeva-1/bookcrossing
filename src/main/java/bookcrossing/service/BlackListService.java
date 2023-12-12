@@ -20,6 +20,7 @@ public class BlackListService {
         this.blackListRepository = blackListRepository;
         this.personService = personService;
     }
+
     public List<BlackList> getAll() {
         return blackListRepository.findAll();
     }

@@ -13,6 +13,7 @@ import bookcrossing.repository.PersonRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -20,6 +21,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+import static bookcrossing.domain.Variables.daysUntilExpiration;
+import static bookcrossing.domain.Variables.daysUse;
+import static bookcrossing.domain.Variables.withoutChanges;
 
 @Slf4j
 @Service
@@ -45,6 +50,7 @@ public class BookBorrowalService {
         return bookBorrowalRepository.findById(id);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void borrowBook(Long takerId, Long borrowerId, Long bookId) {
         try {
             Book book = bookRepository.findById(bookId)
@@ -60,8 +66,6 @@ public class BookBorrowalService {
                     bookRentRepository.delete(existingRequest);
                 } else {
 
-                    int daysUntilExpiration = 5;
-
                     BookRent request = new BookRent();
                     request.setRequesterId(borrowerId);
                     request.setBookId(bookId);
@@ -72,7 +76,7 @@ public class BookBorrowalService {
                     bookRentRepository.save(request);
                 }
 
-                bookRepository.save(book);
+                bookRepository.flush();
 
                 BookBorrowal borrowal = new BookBorrowal();
                 borrowal.setBorrowerId(borrowerId);
@@ -93,7 +97,7 @@ public class BookBorrowalService {
                     book.setStatus(Book.BookStatus.ON_HAND);
                     bookRentRepository.delete(existingRequest);
 
-                    bookRepository.save(book);
+                    bookRepository.flush();
 
                     BookBorrowal borrowal = new BookBorrowal();
                     borrowal.setBorrowerId(borrowerId);
@@ -111,10 +115,12 @@ public class BookBorrowalService {
             } else {
                 throw new BookUnavailableException("The book with ID " + bookId + " is not available for request.");
             }
-
-        } catch (Exception e) {
+        } catch (BookNotFoundException | BookUnavailableException e) {
             log.error("Error borrowing a book", e);
             throw e;
+        } catch (Exception e) {
+            log.error("Unexpected error borrowing a book", e);
+            throw new RuntimeException("Unexpected error borrowing a book", e);
         }
     }
 
@@ -128,12 +134,12 @@ public class BookBorrowalService {
 
             updatePersonRating(borrowal);
             bookBorrowalRepository.save(borrowal);
+            log.info("Book with ID {} returned by user with ID {}", borrowal.getBookId(), borrowal.getBorrowerId());
             return borrowal;
         }
 
         throw new EntityNotFoundException("Sorry, rental not found " + borrowalId);
     }
-
 
     private void updatePersonRating(BookBorrowal borrowal) {
         Optional<Person> borrower = personRepository.findById(borrowal.getBorrowerId());
@@ -167,10 +173,8 @@ public class BookBorrowalService {
     }
 
     private int calculateRatingChange(BookBorrowal borrowal) {
-        int daysUse = 7;
         int during = 1;
         int overdue = 1;
-        int withoutChanges = 0;
         if (borrowal.getReturnDate() != null) {
             long timeDifference = borrowal.getReturnDate().getTime() - borrowal.getBorrowDate().getTime();
             return timeDifference <= TimeUnit.DAYS.toMillis(daysUse) ? during : -overdue;
@@ -179,7 +183,6 @@ public class BookBorrowalService {
     }
 
     private Timestamp calculateReturnDate() {
-        int daysUse = 7;
         LocalDateTime returnDate = LocalDateTime.now().plusDays(daysUse);
         return Timestamp.valueOf(returnDate);
     }

@@ -107,6 +107,6 @@ public class PersonControllerTest {
     void deleteTest() throws Exception {
         Mockito.doNothing().when(personService).deletePersonById(anyLong());
         Mockito.when(personService.getPersonById(anyLong())).thenReturn(Optional.of(new Person()));
-        mockMvc.perform(delete("/person/3")).andExpect(status().isNoContent());
+        mockMvc.perform(delete("/person/delete/3")).andExpect(status().isNoContent());
     }
 }

@@ -47,7 +47,7 @@ public class BookBorrowalController {
 
     @PostMapping("/borrow")
     public ResponseEntity<HttpStatus> borrowBook(@RequestParam Long borrowerId, @RequestParam Long bookId, @RequestParam(value = "takerId", required = false) Long takerId) {
-        if (blackListService.isPersonNotInBlackList(borrowerId)&& !bookService.isPersonOwnsBook(borrowerId,bookId)) {
+        if (blackListService.isPersonNotInBlackList(borrowerId) && !bookService.isPersonOwnsBook(borrowerId, bookId)) {
             bookBorrowalService.borrowBook(takerId, borrowerId, bookId);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } else {
@@ -63,7 +63,7 @@ public class BookBorrowalController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<HttpStatus> delete(@Parameter(description = "ID of the person to be deleted") @PathVariable("id") Long id) {
         Optional<BookBorrowal> bookBorrowalToDelete = bookBorrowalService.getBookBorrowalById(id);
 
@@ -73,6 +73,5 @@ public class BookBorrowalController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
     }
 }

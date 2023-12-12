@@ -17,7 +17,7 @@ import lombok.Data;
 import java.sql.Timestamp;
 
 @Data
-@Entity(name="book")
+@Entity(name = "book")
 public class Book {
     @Id
     @SequenceGenerator(name = "myBook", sequenceName = "book_id", allocationSize = 1)
